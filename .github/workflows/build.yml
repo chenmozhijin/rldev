@@ -98,9 +98,12 @@ jobs:
         cd src
         omake
 
+    - name: List bin directory contents
+      run: ls -R bin
+
     # Optional: Upload artifacts
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rldev-linux-build
         path: bin # Upload the entire bin directory
