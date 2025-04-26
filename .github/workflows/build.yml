@@ -2,9 +2,9 @@ name: Build RLDev
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -22,12 +22,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-apt-
 
-    - name: Set up OCaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: 3.09.3 # Specific version required by RLDev
-        # Enable caching for opam dependencies
-        cache-prefix: v1
+    - name: Install OCaml 3.09.3 (from source)
+      run: |
+        set -e
+        wget https://caml.inria.fr/pub/distrib/ocaml-3.09/ocaml-3.09.3.tar.gz
+        tar -xzf ocaml-3.09.3.tar.gz
+        cd ocaml-3.09.3
+        ./configure
+        make world.opt
+        sudo make install
+        cd ..
 
     - name: Install system dependencies
       run: |
