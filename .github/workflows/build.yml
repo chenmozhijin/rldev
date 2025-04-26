@@ -31,6 +31,11 @@ jobs:
         ./configure
         # Patch signals.c for compatibility with modern GCC
         sed -i '1i#define _GNU_SOURCE\n#include <signal.h>' asmrun/signals.c
+        # Apply sigprocmask patch from https://github.com/ocaml/ocaml/pull/1752
+        sed -i 's/sigset_t sigs;/sigset_t nsigs, sigs;/' asmrun/signals.c
+        sed -i 's/sigemptyset(&sigs);/sigemptyset(\&nsigs);/' asmrun/signals.c
+        sed -i 's/sigaddset(&sigs, signal_number);/sigaddset(\&nsigs, signal_number);/' asmrun/signals.c
+        sed -i 's/sigprocmask(SIG_BLOCK, &sigs, &sigs);/sigprocmask(SIG_BLOCK, \&nsigs, \&sigs);/' asmrun/signals.c
         make world.opt
         sudo make install
         cd ..
