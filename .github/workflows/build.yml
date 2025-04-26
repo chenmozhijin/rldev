@@ -1,0 +1,106 @@
+name: Build RLDev
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-${{ hashFiles('**/build.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+
+    - name: Set up OCaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 3.09.3 # Specific version required by RLDev
+        # Enable caching for opam dependencies
+        cache-prefix: v1
+
+    - name: Install system dependencies
+      run: |
+        set -e
+        sudo apt-get update
+        sudo apt-get install -y build-essential m4 libpng-dev
+
+    # OMake 0.9.6.8 is required, install from source
+    - name: Install OMake (from source)
+      run: |
+        set -e
+        wget http://web.archive.org/web/20070623190729/mojave.metaprl.org/download/omake/omake-0.9.6.8-1.tar.gz -O omake.tar.gz
+        tar -xzf omake.tar.gz
+        cd omake-0.9.6.8/
+        make install
+        cd ..
+
+    - name: Install OCaml Libraries
+      run: |
+        set -e
+        echo "Installing Findlib..."
+        wget http://download.camlcity.org/download/findlib-1.2.1.tar.gz -O findlib.tar.gz
+        tar -xzf findlib.tar.gz
+        cd findlib-1.2.1
+        ./configure
+        make all opt install
+        cd ..
+        echo "Findlib installed."
+
+        echo "Installing ExtLib..."
+        wget https://downloads.sourceforge.net/project/ocaml-lib/extlib/extlib-1.4/extlib-1.4.tgz -O extlib.tgz
+        tar -xzf extlib.tgz
+        cd extlib-1.4
+        # Use heredoc to provide input to install.ml
+        ocaml install.ml <<EOF
+        2
+        N
+        EOF
+        cd ..
+        echo "ExtLib installed."
+
+        echo "Installing Ulex..."
+        wget http://www.cduce.org/download/old/ulex-0.8.tar.gz -O ulex.tar.gz
+        tar -xzf ulex.tar.gz
+        cd ulex-0.8
+        make all.opt install
+        cd ..
+        echo "Ulex installed."
+
+        echo "Installing XML-Light..."
+        wget http://tech.motion-twin.com/zip/xml-light-2.2.zip -O xml-light.zip
+        unzip xml-light.zip
+        cd xml-light
+        # Keep running make install until it succeeds (as per Baka-Tsuki guide)
+        until make install; do echo "Retrying make install for xml-light..."; sleep 1; done
+        cd ..
+        echo "XML-Light installed."
+
+    - name: Configure RLDev
+      run: |
+        set -e
+        cd src
+        ./configure --encoding=UTF8
+
+    - name: Build RLDev
+      run: |
+        set -e
+        cd src
+        omake
+
+    # Optional: Upload artifacts
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: rldev-linux-build
+        path: bin # Upload the entire bin directory
