@@ -29,6 +29,8 @@ jobs:
         tar -xzf ocaml-3.09.3.tar.gz
         cd ocaml-3.09.3
         ./configure
+        # Patch signals.c for compatibility with modern GCC
+        sed -i '1i#define _GNU_SOURCE\n#include <signal.h>' asmrun/signals.c
         make world.opt
         sudo make install
         cd ..
