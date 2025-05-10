@@ -2,10 +2,17 @@ diff --git a/asmrun/signals.c b/asmrun/signals.c
 index 1234567..89abcde 100644
 --- a/asmrun/signals.c
 +++ b/asmrun/signals.c
-@@ -403,7 +403,10 @@ static char * system_stack_top;
+@@ -19,6 +19,7 @@
+ #include <signal.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ #include "alloc.h"
+ #include "callback.h"
+ 
+@@ -402,10 +403,14 @@ static char * system_stack_top;
 -static char sig_alt_stack[SIGSTKSZ];
 +static char * sig_alt_stack = NULL;
-+
+ 
 +if (sig_alt_stack == NULL) {
 +    sig_alt_stack = malloc(SIGSTKSZ);
 +    if (sig_alt_stack == NULL) {
@@ -14,8 +21,9 @@ index 1234567..89abcde 100644
 +    }
 +}
  
-@@ -469,7 +472,7 @@ void caml_init_signals(void) {
+@@ -468,7 +473,7 @@ void caml_init_signals(void) {
 -    struct sigaltstack stk;
 +    stack_t stk;
+     struct sigaction act;
      stk.ss_sp = sig_alt_stack;
      stk.ss_size = SIGSTKSZ;
