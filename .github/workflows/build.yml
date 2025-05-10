@@ -34,7 +34,6 @@ jobs:
         opam init --no-setup
         opam switch create 3.09.3
         eval $(opam env)
-        opam install -y ocaml-compiler.3.09.3
 
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
