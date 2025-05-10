@@ -21,12 +21,12 @@ jobs:
         key: ${{ runner.os }}-apt-${{ hashFiles('**/build.yml') }}
         restore-keys: |
           ${{ runner.os }}-apt-
-
+          
     - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
-
+        
         mkdir install_4.8
         cd install_4.8/
         wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/g++-4.8_4.8.5-4ubuntu8_amd64.deb 
@@ -49,12 +49,13 @@ jobs:
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
         cd ocaml
-        # 使用GCC 4.8并添加C99标准和BSD宏定义解决restrict和SIGSTKSZ问题
+        # 使用GCC 4.8并添加C99标准和必要的包含路径
+        # 保留原始Makefile的-I../byterun并添加-I$(CURDIR)/asmrun
         ./configure
-        make world.opt CC=gcc-4.8
+        make world.opt CC=gcc-4.8 CFLAGS="-std=gnu99 -I../byterun"
         sudo make install
         cd ..
-
+        
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
       run: |
@@ -63,7 +64,7 @@ jobs:
         cd omake-0.9.6.8/
         make install
         cd ..
-
+        
     - name: Install OCaml Libraries
       run: |
         echo "Installing Findlib..."
@@ -74,7 +75,7 @@ jobs:
         make all opt install
         cd ..
         echo "Findlib installed."
-
+        
         echo "Installing ExtLib..."
         wget https://downloads.sourceforge.net/project/ocaml-lib/extlib/extlib-1.4/extlib-1.4.tgz -O extlib.tgz
         tar -xzf extlib.tgz
@@ -86,7 +87,7 @@ jobs:
         EOF
         cd ..
         echo "ExtLib installed."
-
+        
         echo "Installing Ulex..."
         wget http://www.cduce.org/download/old/ulex-0.8.tar.gz -O ulex.tar.gz
         tar -xzf ulex.tar.gz
@@ -94,7 +95,7 @@ jobs:
         make all.opt install
         cd ..
         echo "Ulex installed."
-
+        
         echo "Installing XML-Light..."
         wget http://tech.motion-twin.com/zip/xml-light-2.2.zip -O xml-light.zip
         unzip xml-light.zip
@@ -103,20 +104,20 @@ jobs:
         until make install; do echo "Retrying make install for xml-light..."; sleep 1; done
         cd ..
         echo "XML-Light installed."
-
+        
     - name: Configure RLDev
       run: |
         cd src
         ./configure --encoding=UTF8
-
+        
     - name: Build RLDev
       run: |
         cd src
         omake
-
+        
     - name: List bin directory contents
       run: ls -R bin
-
+      
     # Optional: Upload artifacts
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
