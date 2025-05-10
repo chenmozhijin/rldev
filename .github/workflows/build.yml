@@ -31,7 +31,7 @@ jobs:
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
         cd ocaml
-        ./configure
+        ./configure CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
         make world.opt CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
         sudo make install
         cd ..
@@ -51,7 +51,7 @@ jobs:
         wget http://download.camlcity.org/download/findlib-1.2.1.tar.gz -O findlib.tar.gz
         tar -xzf findlib.tar.gz
         cd findlib-1.2.1
-        ./configure
+        ./configure CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
         make all opt install
         cd ..
         echo "Findlib installed."
@@ -88,7 +88,7 @@ jobs:
     - name: Configure RLDev
       run: |
         cd src
-        ./configure --encoding=UTF8
+        ./configure CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89" --encoding=UTF8
 
     - name: Build RLDev
       run: |
