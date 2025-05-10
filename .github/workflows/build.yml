@@ -51,7 +51,7 @@ jobs:
         cd ocaml
         # 使用GCC 4.8并添加C99标准和BSD宏定义解决restrict和SIGSTKSZ问题
         ./configure
-        make world.opt CC=gcc-4.8 CFLAGS="-std=gnu99 -D_BSD_SOURCE -I/usr/include/bsd"
+        make world.opt
         sudo make install
         cd ..
 
