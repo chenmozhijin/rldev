@@ -25,12 +25,10 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
+        sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev opam
 
     - name: Install OCaml 3.09.3 (via OPAM)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y opam
         opam init --no-setup
         opam repository add archive git+https://github.com/ocaml/opam-repository-archive
         opam switch create 3.09.3 ocaml-base-compiler.3.09.3
@@ -44,6 +42,9 @@ jobs:
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
       run: |
+        eval $(opam env)
+        ocaml -version
+
         wget http://web.archive.org/web/20070623190729/mojave.metaprl.org/download/omake/omake-0.9.6.8-1.tar.gz -O omake.tar.gz
         tar -xzf omake.tar.gz
         cd omake-0.9.6.8/
@@ -52,6 +53,9 @@ jobs:
 
     - name: Install OCaml Libraries
       run: |
+        eval $(opam env)
+        ocaml -version
+
         echo "Installing Findlib..."
         wget http://download.camlcity.org/download/findlib-1.2.1.tar.gz -O findlib.tar.gz
         tar -xzf findlib.tar.gz
@@ -92,11 +96,17 @@ jobs:
 
     - name: Configure RLDev
       run: |
+        eval $(opam env)
+        ocaml -version
+
         cd src
         ./configure --encoding=UTF8
 
     - name: Build RLDev
       run: |
+        eval $(opam env)
+        ocaml -version
+
         cd src
         omake
 
