@@ -31,8 +31,7 @@ jobs:
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
         cd ocaml
-        export CFLAGS="-D_GNU_SOURCE -D_POSIX_C_SOURCE=200112L -DHAS_STACK_OVERFLOW_DETECTION -DSIGSTKSZ=8192"; ./configure
-        make world.opt
+        ./configure CPPFLAGS="-D_XOPEN_SOURCE=600" CFLAGS="-D_GNU_SOURCE -D_POSIX_C_SOURCE=200112L -DHAS_STACK_OVERFLOW_DETECTION -DSIGSTKSZ=8192" && make world.opt
         sudo make install
         cd ..
 
