@@ -9,7 +9,7 @@ index 1234567..89abcde 100644
  #include "alloc.h"
  #include "callback.h"
  
-@@ -402,6 +403,11 @@ static char * system_stack_top;
+@@ -402,8 +403,13 @@ static char * system_stack_top;
 -static char sig_alt_stack[SIGSTKSZ];
 +
 +static char * sig_alt_stack = NULL;
