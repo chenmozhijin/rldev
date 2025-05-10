@@ -2,37 +2,30 @@ name: Build RLDev
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-
+    container:
+      image: ubuntu:18.04
     steps:
     - uses: actions/checkout@v3
 
-    - name: Cache apt packages
-      uses: actions/cache@v3
-      with:
-        path: /var/cache/apt/archives
-        key: ${{ runner.os }}-apt-${{ hashFiles('**/build.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-apt-
-
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
+        apt-get update
+        apt-get install -y build-essential m4 libpng-dev libsigsegv-dev wget git
 
     - name: Install OCaml 3.09.3 (from source)
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
         cd ocaml
-        ./configure -cc "gcc -D_POSIX_C_SOURCE=199309L -std=gnu89" CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
-        make world.opt CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
+        ./configure
+        make world.opt
         sudo make install
         cd ..
 
@@ -51,7 +44,7 @@ jobs:
         wget http://download.camlcity.org/download/findlib-1.2.1.tar.gz -O findlib.tar.gz
         tar -xzf findlib.tar.gz
         cd findlib-1.2.1
-        ./configure -cc "gcc -D_POSIX_C_SOURCE=199309L -std=gnu89" CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89"
+        ./configure
         make all opt install
         cd ..
         echo "Findlib installed."
@@ -88,7 +81,7 @@ jobs:
     - name: Configure RLDev
       run: |
         cd src
-        ./configure -cc "gcc -D_POSIX_C_SOURCE=199309L -std=gnu89" CFLAGS="-D_POSIX_C_SOURCE=199309L -std=gnu89" --encoding=UTF8
+        ./configure --encoding=UTF8
 
     - name: Build RLDev
       run: |
@@ -100,7 +93,7 @@ jobs:
 
     # Optional: Upload artifacts
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: rldev-linux-build
-        path: bin # Upload the entire bin directory
+        path: bin
