@@ -52,7 +52,7 @@ jobs:
         # 使用GCC 4.8并添加C99标准和必要的包含路径
         # 保留原始Makefile的-I../byterun并添加-I$(CURDIR)/asmrun
         ./configure
-        make world.opt CC=gcc-4.8 CFLAGS="-std=gnu99 -I../byterun"
+        make world.opt CC=gcc-4.8 CFLAGS="-std=gnu99 -I../byterun -DCAML_NAME_SPACE -DNATIVE_CODE -DTARGET_amd64 -DSYS_linux  -O -Wall -D_FILE_OFFSET_BITS=64 -D_REENTRANT"
         sudo make install
         cd ..
         
