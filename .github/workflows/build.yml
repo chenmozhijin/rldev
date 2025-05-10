@@ -28,18 +28,25 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
-        # 添加旧版工具链仓库并安装GCC 4.8
-        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
-        sudo apt-get install -y gcc-4.8 g++-4.8
+
+        mkdir install_g++-4.8
+        cd install_4.8/
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/g++-4.8_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/libstdc++-4.8-dev_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/gcc-4.8-base_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/gcc-4.8_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/libgcc-4.8-dev_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/cpp-4.8_4.8.5-4ubuntu8_amd64.deb 
+        wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-4.8/libasan0_4.8.5-4ubuntu8_amd64.deb  
+        sudo apt install ./gcc-4.8_4.8.5-4ubuntu8_amd64.deb ./gcc-4.8-base_4.8.5-4ubuntu8_amd64.deb ./libstdc++-4.8-dev_4.8.5-4ubuntu8_amd64.deb ./cpp-4.8_4.8.5-4ubuntu8_amd64.deb ./libgcc-4.8-dev_4.8.5-4ubuntu8_amd64.deb ./libasan0_4.8.5-4ubuntu8_amd64.deb ./g++-4.8_4.8.5-4ubuntu8_amd64.deb
         # 设置GCC 4.8为默认编译器
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 10 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
-        # 安装预处理器工具解决SIGSTKSZ问题
-        sudo apt-get install -y libbsd-dev
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
 
     - name: Check GCC version
       run: |
         gcc --version
+
     - name: Install OCaml 3.09.3 (from source)
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
