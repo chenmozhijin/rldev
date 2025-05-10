@@ -24,16 +24,13 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        set -e
         sudo apt-get update
-        sudo apt-get install -y build-essential m4 libpng-dev
+        sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
 
     - name: Install OCaml 3.09.3 (from source)
       run: |
-        set -e
-        wget https://caml.inria.fr/pub/distrib/ocaml-3.09/ocaml-3.09.3.tar.gz
-        tar -xzf ocaml-3.09.3.tar.gz
-        cd ocaml-3.09.3
+        git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
+        cd ocaml
         ./configure
         make world.opt
         sudo make install
@@ -42,7 +39,6 @@ jobs:
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
       run: |
-        set -e
         wget http://web.archive.org/web/20070623190729/mojave.metaprl.org/download/omake/omake-0.9.6.8-1.tar.gz -O omake.tar.gz
         tar -xzf omake.tar.gz
         cd omake-0.9.6.8/
@@ -51,7 +47,6 @@ jobs:
 
     - name: Install OCaml Libraries
       run: |
-        set -e
         echo "Installing Findlib..."
         wget http://download.camlcity.org/download/findlib-1.2.1.tar.gz -O findlib.tar.gz
         tar -xzf findlib.tar.gz
@@ -92,13 +87,11 @@ jobs:
 
     - name: Configure RLDev
       run: |
-        set -e
         cd src
         ./configure --encoding=UTF8
 
     - name: Build RLDev
       run: |
-        set -e
         cd src
         omake
 
