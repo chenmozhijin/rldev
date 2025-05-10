@@ -49,8 +49,7 @@ jobs:
       run: |
         git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
         cd ocaml
-        # 使用GCC 4.8并添加C99标准和必要的包含路径
-        # 保留原始Makefile的-I../byterun并添加-I$(CURDIR)/asmrun
+        patch -p1 < ../.github/workflows/patchs/ocaml_signals_fix.patch
         ./configure
         make world.opt CC=gcc-4.8
         sudo make install
