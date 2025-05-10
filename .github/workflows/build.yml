@@ -2,32 +2,39 @@ name: Build RLDev
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container:
-      image: ubuntu:18.04
+
     steps:
     - uses: actions/checkout@v3
 
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-${{ hashFiles('**/build.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+
     - name: Install system dependencies
       run: |
-        apt-get update
-        apt-get install -y build-essential m4 libpng-dev libsigsegv-dev wget git
+        sudo apt-get update
+        sudo apt-get install -y build-essential m4 libpng-dev libsigsegv-dev
 
-    - name: Install OCaml 3.09.3 (from source)
+    - name: Install OCaml 3.09.3 (via OPAM)
       run: |
-        git clone --branch 3.09.3 --depth 1 https://github.com/ocaml/ocaml
-        cd ocaml
-        ./configure
-        make world.opt
-        sudo make install
-        cd ..
+        sudo apt-get update
+        sudo apt-get install -y opam
+        opam init --no-setup
+        opam switch create 3.09.3
+        eval $(opam env)
+        opam install -y ocaml-compiler.3.09.3
 
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
@@ -93,7 +100,7 @@ jobs:
 
     # Optional: Upload artifacts
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rldev-linux-build
-        path: bin
+        path: bin # Upload the entire bin directory
