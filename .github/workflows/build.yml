@@ -32,8 +32,14 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y opam
         opam init --no-setup
-        opam switch create 3.09.3
+        opam repository add archive git+https://github.com/ocaml/opam-repository-archive
+        opam switch create 3.09.3 ocaml-base-compiler.3.09.3
         eval $(opam env)
+        ocaml -version
+    - name: Verify OCaml version
+      run: |
+        eval $(opam env)
+        ocaml -version
 
     # OMake 0.9.6.8 is required, install from source
     - name: Install OMake (from source)
